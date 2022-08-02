@@ -1,0 +1,220 @@
+{
+  "version": "1",
+  "port": "3004",
+  "slack_webhooks": {
+    "general": {
+      "url": "https://hooks.slack.com/services/hook1",
+      "show_details": {
+		"green": false,
+        "amber": false,
+        "red": false
+      },
+      "show_actions": {
+		"green": false,
+        "amber": false,
+        "red": true
+      }
+    },
+    "dev": {
+      "url": "https://hooks.slack.com/services/hook2",
+      "show_details": {
+		"green": true,
+        "amber": true,
+        "red": true
+      },
+      "show_actions": {
+		"green": true,
+        "amber": true,
+        "red": true
+      }
+    }
+  },
+  "prometheus_url": "https://prometheus.example.com",
+  "scrapper_minutes": 5,
+  "metrics": {
+    "app1_lb_avg_resp_time": {
+      "display_name": "Some App LB Avg Resp Time",
+      "query": "aws_applicationelb_target_response_time_average{load_balancer=\"app/prod-frontend/111\"}"
+    },
+    "app2_lb_avg_resp_time": {
+      "display_name": "Another App LB Avg Resp Time",
+      "query": "aws_applicationelb_target_response_time_average{load_balancer=\"app/prod-frontend/222\"}"
+    },
+    "app3_lb_avg_resp_time": {
+      "display_name": "Another Metric 1",
+      "query": "aws_applicationelb_target_response_time_average{load_balancer=\"app/prod-frontend/333\"}"
+    },
+    "app4_lb_avg_resp_time": {
+      "display_name": "Another Metric 2",
+      "query": "aws_applicationelb_target_response_time_average{load_balancer=\"app/prod-frontend/444\"}"
+    }
+  },
+  "notification_levels": [
+    {
+      "color": "green",
+      "slack_webhooks": [],
+      "slack_message": {
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": ":large_green_circle: All systems are working properly"
+            }
+          }
+        ],
+          "detail_blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "*Metrics:*\n{{ range .Metrics }}{{ .DisplayName }} {{ .LastValue }}\n{{ end }}"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "color": "amber",
+      "slack_webhooks": [
+        "dev"
+      ],
+      "slack_message": {
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": ":large_yellow_circle: Warning! Some systems are working slightly slower"
+            }
+          }
+        ],
+        "detail_blocks": [
+          {
+            "type": "divider"
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Threshold exceeded metrics:*\n{{ range .Metrics }}{{ if and .Leverage .ThresholdExceeded }}{{ .DisplayName }} {{ .LastValue }} > *{{ .Threshold }}*\n{{ end }}{{ end }}"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Other leverage metrics:*\n{{ range .Metrics }}{{ if and .Leverage (not .ThresholdExceeded) }}{{ .DisplayName }} {{ .LastValue }} < *{{ .Threshold }}*\n{{ end }}{{ end }}"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Rest of metrics:*\n{{ range .Metrics }}{{ if not .Leverage }}{{ .DisplayName }} {{ .LastValue }}\n{{ end }}{{ end }}"
+            }
+          }
+        ],
+        "action_blocks": [
+          {
+            "type": "divider"
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "Check Grafana dashboard"
+            },
+            "accessory": {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Click Me",
+                "emoji": true
+              },
+              "value": "prom_uk",
+              "url": "https://grafana.example.com",
+              "action_id": "button-action"
+            }
+          }
+        ]
+      },
+      "leverage_metrics": {
+        "app1_lb_avg_resp_time": "0.040",
+        "app2_lb_avg_resp_time": "0.041",
+        "app3_lb_avg_resp_time": "0.043",
+        "app4_lb_avg_resp_time": "0.044"
+      }
+    },
+    {
+      "color": "red",
+      "slack_webhooks": [
+        "dev"
+      ],
+      "slack_message": {
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": ":large_red_square: ACHTUNG! ВНИМАНИЕ! Actions needed now! Some systems are responding way too slow!"
+            }
+          }
+        ],
+        "detail_blocks": [
+          {
+            "type": "divider"
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Threshold exceeded metrics:*\n{{ range .Metrics }}{{ if and .Leverage .ThresholdExceeded }}{{ .DisplayName }} {{ .LastValue }} > *{{ .Threshold }}*\n{{ end }}{{ end }}"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Other leverage metrics:*\n{{ range .Metrics }}{{ if and .Leverage (not .ThresholdExceeded) }}{{ .DisplayName }} {{ .LastValue }} < *{{ .Threshold }}*\n{{ end }}{{ end }}"
+            }
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "*Rest of metrics:*\n{{ range .Metrics }}{{ if not .Leverage }}{{ .DisplayName }} {{ .LastValue }}\n{{ end }}{{ end }}"
+            }
+          }
+        ],
+        "action_blocks": [
+          {
+            "type": "divider"
+          },
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "Check Grafana dashboard"
+            },
+            "accessory": {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "Click Me",
+                "emoji": true
+              },
+              "value": "prom_uk",
+              "url": "https://grafana.example.com",
+              "action_id": "button-action"
+            }
+          }
+        ]
+      },
+      "leverage_metrics": {
+        "app1_lb_avg_resp_time": "0.05"
+      }
+    }
+  ]
+}
