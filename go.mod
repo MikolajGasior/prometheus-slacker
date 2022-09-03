@@ -1,4 +1,4 @@
-module github.com/gasiordev/prometheus-slacker
+module github.com/mikogs/prometheus-slacker
 
 go 1.15
 
