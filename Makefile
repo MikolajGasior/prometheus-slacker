@@ -1,7 +1,7 @@
 VERSION?=$$(cat version.go | grep VERSION | cut -d"=" -f2 | sed 's/"//g' | sed 's/ //g')
 GOFMT_FILES?=$$(find . -name '*.go')
 PROJECT_BIN?=prometheus-slacker
-PROJECT_SRC?=github.com/mikogs/prometheus-slacker
+PROJECT_SRC?=github.com/MikolajGasior/prometheus-slacker
 
 default: build
 
